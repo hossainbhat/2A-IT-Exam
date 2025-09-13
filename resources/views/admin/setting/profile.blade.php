@@ -49,32 +49,43 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="row mb-3">
-                                                <div class="col-sm-6 text-secondary">
+                                                <div class="col-sm-12 text-secondary mb-3">
                                                     <label for="name">Full Name</label>
                                                     <input type="text" name="name" id="name" class="form-control"
                                                         value="{{ auth()->user()->name }}" placeholder="Your Name">
                                                 </div>
-                                                <div class="col-sm-6 text-secondary">
+                                                <div class="col-sm-12 text-secondary mb-3">
                                                     <label for="email">Email</label>
                                                     <input type="email" name="email" class="form-control"
                                                         value="{{ auth()->user()->email }}">
                                                 </div>
-                                            </div>
-                                            <div class="row mb-3">
-                                               
-                                            <div class="row mb-3">
-                                                <div class="col-sm-6 text-secondary">
+                                                <div class="col-sm-12 text-secondary mb-3">
                                                     <label for="address">Address</label>
                                                     <input type="text" name="address" class="form-control"
                                                         value="{{ auth()->user()->address }}">
                                                 </div>
-                                              
+                                                <div class="col-sm-12 text-secondary mb-3">
+                                                    <label for="image">Photo</label>
+                                                    <input type="file" name="image" id="image" class="form-control"
+                                                        onchange="previewImage(event)">
+                                                    @if (auth()->user()->image)
+                                                        <img class="mt-2"
+                                                            src="{{ asset('uploads/photo/' . auth()->user()->image) }}"
+                                                            alt="photo" style="max-width: 100px; max-height: 100px;" />
+                                                    @endif
+                                                    <div id="preview-container" style="margin-top: 15px;">
+                                                        <img id="logo-preview"
+                                                            src="{{ asset('uploads/photo/' . auth()->user()->image) }}"
+                                                            alt="Image Preview"
+                                                            style="display: none; max-width: 100px; max-height: 100px;" />
+                                                    </div>
+                                                </div>
                                             </div>
-                                         
+
                                             <div class="row">
                                                 <div class="col-sm-12 text-secondary">
-                                                    <input type="button" id="updateProfileBtn"
-                                                        class="btn btn-primary px-4" value="Update">
+                                                    <input type="button" id="updateProfileBtn" class="btn btn-primary px-4"
+                                                        value="Update">
                                                 </div>
                                             </div>
                                         </div>
@@ -110,7 +121,9 @@
                                                     <input type="password" name="confirm_pwd" id="confirm_pwd"
                                                         class="form-control" placeholder="*****">
                                                 </div>
+
                                             </div>
+
 
                                             <div class="row">
                                                 <div class="col-sm-4"></div>

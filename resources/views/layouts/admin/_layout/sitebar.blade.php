@@ -23,22 +23,14 @@
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class="lni lni-blogger"></i>
                 </div>
-                <div class="menu-title">Blog</div>
+                <div class="menu-title">Supplier</div>
             </a>
             <ul>
-                <li> <a href="{{ route('blogs.create') }}"><i class="bx bx-right-arrow-alt"></i>Add New</a>
+                <li> <a href="#"><i class="bx bx-right-arrow-alt"></i>Add New</a>
                 </li>
-                <li> <a href="{{ route('blogs.index') }}"><i class="bx bx-right-arrow-alt"></i>Blog List</a>
+                <li> <a href="#"><i class="bx bx-right-arrow-alt"></i>Supplier List</a>
                 </li>
             </ul>
-        </li>
-
-        <li>
-            <a href="{{ route('contact.index') }}">
-                <div class="parent-icon"><i class="lni lni-phone"></i>
-                </div>
-                <div class="menu-title">Contact</div>
-            </a>
         </li>
         
     </ul>
