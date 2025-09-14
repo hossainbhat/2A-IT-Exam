@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Unit;
 use App\Models\Brand;
-use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-class ProductController extends Controller
+class BrandController extends Controller
 {
+    const IMAGE_PATH = 'uploads/logo/';
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         if ($request->wantsJson()) {
-            $products = new Product();
+            $brands = new Brand();
             $limit = 10;
             $offset = 0;
             $search = [];
@@ -50,10 +48,10 @@ class ProductController extends Controller
             }
 
 
-            $products = $products->getDataForDataTable($limit, $offset, $search, $where, $with, $join, $orderBy,  $request->all());
-            return response()->json($products);
+            $brands = $brands->getDataForDataTable($limit, $offset, $search, $where, $with, $join, $orderBy,  $request->all());
+            return response()->json($brands);
         }
-        return view('admin.product.index');
+        return view('admin.brand.index');
     }
 
     /**
@@ -61,10 +59,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $data['categories'] = Category::all();
-        $data['brands'] = Brand::all();
-        $data['units'] = Unit::all();
-        return view('admin.product.create', $data);
+        return view('admin.brand.create');
     }
 
     /**
@@ -73,22 +68,22 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:products,name',
-            'category_id' => 'required',
-            'brand_id' => 'required',
-            'unit_id' => 'required',
-            'product_code' => 'required',
+            'name' => 'required|string|max:255|unique:brands',
         ]);
         try {
             $data = [
-                'category_id' => $request->category_id,
-                'brand_id' => $request->brand_id,
-                'unit_id' => $request->unit_id,
-                'product_code' => $request->product_code,
                 'name' => $request->name,
-                'status' => $request->status,
             ];
-            Product::create($data);
+            if ($request->hasFile('logo')) {
+                $image_tmp = $request->file('logo');
+                if ($image_tmp->isValid()) {
+                    $extension = $image_tmp->getClientOriginalExtension();
+                    $fileName = time() . '_' . rand(111, 99999) . '.' . $extension;
+                    $image_tmp->move(self::IMAGE_PATH, $fileName);
+                    $data['logo'] = $fileName;
+                }
+            }
+            brand::create($data);
             return sendSuccess('Successfully created !');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -100,37 +95,38 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product)
+    public function edit(Brand $brand)
     {
-        $data['categories'] = Category::all();
-        $data['brands'] = Brand::all();
-        $data['units'] = Unit::all();
-        $data['product'] = $product;
-        return view('admin.product.edit', $data);
+        $data['brand'] = $brand;
+        return view('admin.brand.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Brand $brand)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
-            'category_id' => 'required',
-            'brand_id' => 'required',
-            'unit_id' => 'required',
-            'product_code' => 'required',
+            'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
         ]);
         try {
             $data = [
-                'category_id' => $request->category_id,
-                'brand_id' => $request->brand_id,
-                'unit_id' => $request->unit_id,
-                'product_code' => $request->product_code,
                 'name' => $request->name,
-                'status' => $request->status,
             ];
-            $product->update($data);
+            if ($request->hasFile('logo')) {
+                $logo = self::IMAGE_PATH . $brand->logo;
+                if (file_exists($logo)) {
+                    unlinkFile($logo);
+                }
+                $image_tmp = $request->file('logo');
+                if ($image_tmp->isValid()) {
+                    $extension = $image_tmp->getClientOriginalExtension();
+                    $fileName = time() . '_' . rand(111, 99999) . '.' . $extension;
+                    $image_tmp->move(self::IMAGE_PATH, $fileName);
+                    $data['logo'] = $fileName;
+                }
+            }
+            $brand->update($data);
             return sendSuccess('Successfully Update !');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -141,10 +137,14 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Brand $brand)
     {
         try {
-            $product->delete();
+            $logo = self::IMAGE_PATH . $brand->logo;
+            if (file_exists($logo)) {
+                unlinkFile($logo);
+            }
+            $brand->delete();
             return sendMessage('Successfully Delete');
         } catch (\Exception $e) {
             return sendError($e->getMessage());

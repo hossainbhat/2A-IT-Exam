@@ -3,22 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Unit;
-use App\Models\Brand;
-use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-class ProductController extends Controller
+class UnitController extends Controller
 {
-    /**
+   /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         if ($request->wantsJson()) {
-            $products = new Product();
+            $units = new Unit();
             $limit = 10;
             $offset = 0;
             $search = [];
@@ -50,10 +47,10 @@ class ProductController extends Controller
             }
 
 
-            $products = $products->getDataForDataTable($limit, $offset, $search, $where, $with, $join, $orderBy,  $request->all());
-            return response()->json($products);
+            $units = $units->getDataForDataTable($limit, $offset, $search, $where, $with, $join, $orderBy,  $request->all());
+            return response()->json($units);
         }
-        return view('admin.product.index');
+        return view('admin.unit.index');
     }
 
     /**
@@ -61,10 +58,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $data['categories'] = Category::all();
-        $data['brands'] = Brand::all();
-        $data['units'] = Unit::all();
-        return view('admin.product.create', $data);
+        return view('admin.unit.create');
     }
 
     /**
@@ -73,22 +67,13 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:products,name',
-            'category_id' => 'required',
-            'brand_id' => 'required',
-            'unit_id' => 'required',
-            'product_code' => 'required',
+            'name' => 'required|string|max:255|unique:units',
         ]);
         try {
             $data = [
-                'category_id' => $request->category_id,
-                'brand_id' => $request->brand_id,
-                'unit_id' => $request->unit_id,
-                'product_code' => $request->product_code,
                 'name' => $request->name,
-                'status' => $request->status,
             ];
-            Product::create($data);
+            Unit::create($data);
             return sendSuccess('Successfully created !');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -100,37 +85,25 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product)
+    public function edit(Unit $unit)
     {
-        $data['categories'] = Category::all();
-        $data['brands'] = Brand::all();
-        $data['units'] = Unit::all();
-        $data['product'] = $product;
-        return view('admin.product.edit', $data);
+        $data['unit'] = $unit;
+        return view('admin.unit.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Unit $unit)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
-            'category_id' => 'required',
-            'brand_id' => 'required',
-            'unit_id' => 'required',
-            'product_code' => 'required',
+            'name' => 'required|string|max:255|unique:units,name,'.$unit->id,
         ]);
         try {
             $data = [
-                'category_id' => $request->category_id,
-                'brand_id' => $request->brand_id,
-                'unit_id' => $request->unit_id,
-                'product_code' => $request->product_code,
                 'name' => $request->name,
-                'status' => $request->status,
             ];
-            $product->update($data);
+            $unit->update($data);
             return sendSuccess('Successfully Update !');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -141,10 +114,10 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Unit $unit)
     {
         try {
-            $product->delete();
+            $unit->delete();
             return sendMessage('Successfully Delete');
         } catch (\Exception $e) {
             return sendError($e->getMessage());

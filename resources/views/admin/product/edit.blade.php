@@ -29,12 +29,49 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
+                                            <label for="category_id" class="form-label">Category</label>
+                                            <select id="category_id" name="category_id" class="form-select">
+                                                <option selected="" @disabled(true)>Select Category</option>
+                                                @foreach ($categories as $category)
+                                                    <option @if($product->category_id == $category->id) @selected(true) @endif value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="brand_id" class="form-label">Brand</label>
+                                            <select id="brand_id" name="brand_id" class="form-select">
+                                                <option selected="" @disabled(true)>Select Brand</option>
+                                                @foreach ($brands as $brand)
+                                                    <option @if($product->brand_id == $brand->id) @selected(true) @endif value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="unit_id" class="form-label">Unit</label>
+                                            <select id="unit_id" name="unit_id" class="form-select">
+                                                <option selected="" @disabled(true)>Select Parent</option>
+                                                @foreach ($units as $unit)
+                                                    <option @if($product->unit_id == $unit->id) @selected(true) @endif value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+                                        <div class="form-group mb-3">
                                             <label for="name">Name <span class="text-danger">*</span></label>
                                             <input type="text" placeholder="Enter name" value="{{ $product->name }}"
                                                 id="name" name="name" class="form-control">
                                             <span class="invalid-feedback"></span>
                                         </div>
-                                        
+                                        <div class="form-group mb-3">
+                                            <label for="product_code">Product Code <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" placeholder="Enter name" value="{{ $product->product_code }}"
+                                                id="product_code" name="product_code" class="form-control">
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+
                                         <div class="form-group mt-3">
                                             <div class="mb-3">
                                                 <label class="form-label d-block fw-bold">
@@ -78,8 +115,8 @@
         $(document).ready(function() {
             $(document).on('click', '#editBtn', function(e) {
                 e.preventDefault();
-                 var id = {{ $product->id }};
-                  utlt.asyncFalseRequest('PUT', 'admin/product/' + id, '#FormData', null, 'admin/product');
+                var id = {{ $product->id }};
+                utlt.asyncFalseRequest('PUT', 'admin/product/' + id, '#FormData', null, 'admin/product');
             });
         });
     </script>

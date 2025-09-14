@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Unit;
-use App\Models\Brand;
-use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-class ProductController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,12 +15,12 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         if ($request->wantsJson()) {
-            $products = new Product();
+            $categories = new Category();
             $limit = 10;
             $offset = 0;
             $search = [];
             $where = [];
-            $with = [];
+            $with = ['parent'];
             $join = [];
             $orderBy = [];
 
@@ -50,10 +47,10 @@ class ProductController extends Controller
             }
 
 
-            $products = $products->getDataForDataTable($limit, $offset, $search, $where, $with, $join, $orderBy,  $request->all());
-            return response()->json($products);
+            $categories = $categories->getDataForDataTable($limit, $offset, $search, $where, $with, $join, $orderBy,  $request->all());
+            return response()->json($categories);
         }
-        return view('admin.product.index');
+        return view('admin.category.index');
     }
 
     /**
@@ -61,10 +58,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $data['categories'] = Category::all();
-        $data['brands'] = Brand::all();
-        $data['units'] = Unit::all();
-        return view('admin.product.create', $data);
+        $data['categories'] = Category::whereNull('parent_id')->get();
+        return view('admin.category.create',$data);
     }
 
     /**
@@ -73,22 +68,15 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:products,name',
-            'category_id' => 'required',
-            'brand_id' => 'required',
-            'unit_id' => 'required',
-            'product_code' => 'required',
+            'name' => 'required|string|max:255|unique:categories',
         ]);
         try {
             $data = [
-                'category_id' => $request->category_id,
-                'brand_id' => $request->brand_id,
-                'unit_id' => $request->unit_id,
-                'product_code' => $request->product_code,
                 'name' => $request->name,
-                'status' => $request->status,
+                'description' => $request->description,
+                'parent_id' => $request->parent_id ?? null,
             ];
-            Product::create($data);
+            Category::create($data);
             return sendSuccess('Successfully created !');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -100,37 +88,27 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product)
+    public function edit(Category $category)
     {
-        $data['categories'] = Category::all();
-        $data['brands'] = Brand::all();
-        $data['units'] = Unit::all();
-        $data['product'] = $product;
-        return view('admin.product.edit', $data);
+        $data['categories'] = Category::whereNull('parent_id')->where('id', '!=', $category->id)->get();
+        $data['category'] = $category;
+        return view('admin.category.edit', $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
-            'category_id' => 'required',
-            'brand_id' => 'required',
-            'unit_id' => 'required',
-            'product_code' => 'required',
+            'name' => 'required|string|max:255|unique:categories,name,'.$category->id,
         ]);
         try {
             $data = [
-                'category_id' => $request->category_id,
-                'brand_id' => $request->brand_id,
-                'unit_id' => $request->unit_id,
-                'product_code' => $request->product_code,
                 'name' => $request->name,
-                'status' => $request->status,
+                'parent_id' => $request->parent_id ?? null,
             ];
-            $product->update($data);
+            $category->update($data);
             return sendSuccess('Successfully Update !');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -141,10 +119,10 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Category $category)
     {
         try {
-            $product->delete();
+            $category->delete();
             return sendMessage('Successfully Delete');
         } catch (\Exception $e) {
             return sendError($e->getMessage());

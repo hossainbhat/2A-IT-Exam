@@ -1,0 +1,85 @@
+@extends('layouts.admin.app')
+@section('title', 'Edit Category')
+@section('content')
+    <div class="page-wrapper">
+        <div class="page-content">
+            <!--breadcrumb-->
+            <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+                <div class="breadcrumb-title pe-3">Tables</div>
+                <div class="ps-3">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0 p-0">
+                            <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Category</li>
+                        </ol>
+                    </nav>
+                </div>
+
+            </div>
+            <!--end breadcrumb-->
+
+            <h6 class="mb-0 text-uppercase">Edit</h6>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="FormData">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group mb-3">
+                                            <label for="name">Name <span class="text-danger">*</span></label>
+                                            <input type="text" placeholder="Enter name" value="{{ $category->name }}"
+                                                id="name" name="name" class="form-control">
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label for="parent_id" class="form-label">Parent</label>
+                                            <select id="parent_id" name="parent_id" class="form-select">
+                                                <option value="" @disabled(true)
+                                                    @selected(!isset($categoryEdit))>Select Parent</option>
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        @if (isset($categoryEdit) && $categoryEdit->parent_id == $category->id) selected @endif>
+                                                        {{ $category->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <label for="description" class="form-label">Description</label>
+                                            <textarea name="description" id="description" class="form-control" cols="30" rows="3">{{ $category->description }}</textarea>
+                                            <span class="invalid-feedback"></span>
+                                        </div>
+
+
+
+                                        <div class="form-group mt-3">
+                                            <input type="button" id="editBtn" value="Update" class="btn btn-primary">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+@endsection
+@section('page_script')
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(document).on('click', '#editBtn', function(e) {
+                e.preventDefault();
+                var id = {{ $category->id }};
+                utlt.asyncFalseRequest('PUT', 'admin/category/' + id, '#FormData', null, 'admin/category');
+            });
+        });
+    </script>
+@endsection
